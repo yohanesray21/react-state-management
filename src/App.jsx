@@ -1,77 +1,53 @@
-import { useReducer, useState } from "react";
-import "./App.css";
+import React, { useEffect, useState } from "react";
 
-function Guest() {
-  const [count, setCount] = useState(0);
-  const [name, setName] = useState("");
-  const [guests, setGuests] = useState(["yohanes", "ray", "febriyanto"]);
+const Stopwatch = () => {
+  const [time, setTime] = useState(0);
 
-  const addingGuest = () => {
-    setGuests([...guests, name]);
-    setName("");
-  };
+  useState(() => {
+    const interval = setInterval(() => {
+      setTime((t) => {
+        console.log(t);
+        return t + 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
-  const addButton = () => {
-    setCount(count + 1);
-  };
+  return <div>Stopwatch : {time}</div>;
+};
 
-  return (
-    <div>
-      <button onClick={addButton}>Count = {count}</button>
-      <div style={{ marginTop: 10 }}>
-        <input value={name} onChange={(e) => setName(e.target.value)} />
-        <button onClick={addingGuest}>Add Guest</button>
-        {guests.map((guest) => {
-          return <li key={guest}>{guest}</li>;
-        })}
-      </div>
-    </div>
-  );
-}
+const App = () => {
+  const [names, setNames] = useState([]);
+  const [selectedName, setSelectedName] = useState(null);
+  useEffect(() => {
+    fetch(`/names.json`)
+      .then((response) => response.json())
+      .then((data) => setNames(data));
+  }, []);
 
-function HookUseReducer() {
-  const [state, dispatch] = useReducer(
-    (state, action) => {
-      switch (action.type) {
-        case "SET_NAME":
-          return { ...state, username: action.payload };
-        case "ADD_NAME":
-          return {
-            ...state,
-            names: [...state.names, state.username],
-            username: "",
-          };
-      }
-    },
-    {
-      names: [],
-      username: "",
+  useEffect(() => {
+    if (selectedName) {
+      fetch(`/${selectedName}.json`)
+        .then((response) => response.json())
+        .then((data) => setSelectedName(data));
     }
-  );
+  }, [selectedName]);
 
   return (
     <div>
+      <Stopwatch />
+      Names : {[...names].join(", ")}
       <div>
-        {state.names.map((name) => {
-          return <li key={name}>{name}</li>;
-        })}
+        {names.map((name) => (
+          <button key={name} onClick={() => setSelectedName(name)}>
+            {name}
+          </button>
+        ))}
+
+        <div>{JSON.stringify(selectedName)}</div>
       </div>
-      <input
-        value={state.username}
-        onChange={(e) =>
-          dispatch({ type: "SET_NAME", payload: e.target.value })
-        }
-      />
-      <button onClick={() => dispatch({ type: "ADD_NAME" })}>
-        Add username
-      </button>
-      <div>username : {state.username}</div>
     </div>
   );
-}
-
-function App() {
-  return <HookUseReducer />;
-}
+};
 
 export default App;
