@@ -1,53 +1,42 @@
-import React, { useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 
-const Stopwatch = () => {
-  const [time, setTime] = useState(0);
-
-  useState(() => {
-    const interval = setInterval(() => {
-      setTime((t) => {
-        console.log(t);
-        return t + 1;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return <div>Stopwatch : {time}</div>;
-};
-
-const App = () => {
-  const [names, setNames] = useState([]);
-  const [selectedName, setSelectedName] = useState(null);
-  useEffect(() => {
-    fetch(`/names.json`)
-      .then((response) => response.json())
-      .then((data) => setNames(data));
-  }, []);
+function App() {
+  const inputRef = useRef(null);
 
   useEffect(() => {
-    if (selectedName) {
-      fetch(`/${selectedName}.json`)
-        .then((response) => response.json())
-        .then((data) => setSelectedName(data));
-    }
-  }, [selectedName]);
+    inputRef.current.focus();
+  }, []);
+
+  const idRef = useRef(1);
+  const [names, setNames] = useState([
+    { id: idRef.current++, name: "John" },
+    { id: idRef.current++, name: "Jane" },
+  ]);
+
+  const onAddName = () => {
+    setNames([
+      ...names,
+      {
+        id: idRef.current++,
+        name: inputRef.current.value,
+      },
+    ]);
+    inputRef.current.value = "";
+  };
 
   return (
     <div>
-      <Stopwatch />
-      Names : {[...names].join(", ")}
       <div>
         {names.map((name) => (
-          <button key={name} onClick={() => setSelectedName(name)}>
-            {name}
-          </button>
+          <div key={name.name}>
+            {name.id} - {name.name}
+          </div>
         ))}
-
-        <div>{JSON.stringify(selectedName)}</div>
       </div>
+      <input type="text" ref={inputRef} />
+      <button onClick={onAddName}>Add Name</button>
     </div>
   );
-};
+}
 
 export default App;
