@@ -40,7 +40,6 @@ const Banner = ({
 export default function Home({ propertyForSale, propertyForRent }) {
   return (
     <div>
-      {console.log(propertyForRent, propertyForSale)}
       <Box>
         <Banner
           purpose="For Sale"

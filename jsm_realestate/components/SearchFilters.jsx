@@ -1,0 +1,33 @@
+import { Box, Flex, Select } from '@chakra-ui/react';
+import React, { useState } from 'react';
+
+import { filterData, getFilterValues } from '@/utils/filterData';
+const SearchFilters = () => {
+  const [filters, setFilters] = useState(filterData);
+  const searchProperties = (filterValues) => {};
+  return (
+    <Flex bg="gray.100" p={4} justifyContent="center" flexWrap="wrap">
+      {filters.map((filter) => (
+        <Box key={filter.queryName}>
+          <Select
+            cursor="pointer"
+            placeholder={filter.placeholder}
+            w="fit-content"
+            p={2}
+            onChange={(e) =>
+              searchProperties({ [filter.queryName]: e.target.value })
+            }
+          >
+            {filter.items.map((item) => (
+              <option value={item.value} key={item.value}>
+                {item.name}
+              </option>
+            ))}
+          </Select>
+        </Box>
+      ))}
+    </Flex>
+  );
+};
+
+export default SearchFilters;
